@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Trivia 💍 Dani & Lucas</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --cream: #fdf6ee;
+      --blush: #e8c5b0;
+      --rose: #c97d6e;
+      --deep: #3b2a2a;
+      --gold: #c9a96e;
+      --soft: #f5ede4;
+      --green: #7aab8a;
+      --red: #c96e6e;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--deep);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 10% 20%, rgba(201, 165, 110, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 90% 80%, rgba(232, 197, 176, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screen {
+      display: none;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 24px 20px 40px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── INTRO ── */
+    #screen-intro {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .rings {
+      font-size: 48px;
+      margin-bottom: 12px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-8px)
+      }
+    }
+
+    .couple-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 38px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .couple-name span {
+      color: var(--rose);
+      font-style: italic;
+    }
+
+    .date-label {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+      font-weight: 500;
+    }
+
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 0 auto 28px;
+    }
+
+    .intro-desc {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #6b5050;
+      max-width: 300px;
+      margin: 0 auto 36px;
+    }
+
+    .name-input-wrap {
+      width: 100%;
+      margin-bottom: 14px;
+    }
+
+    .name-input-wrap label {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .name-input-wrap input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1.5px solid var(--blush);
+      border-radius: 12px;
+      background: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      color: var(--deep);
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .name-input-wrap input:focus {
+      border-color: var(--rose);
+    }
+
+    .name-input-wrap input::placeholder {
+      color: #c4a89a;
+    }
+
+    .error-msg {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(201, 110, 110, 0.08);
+      border: 1px solid rgba(201, 110, 110, 0.25);
+      border-radius: 10px;
+      color: #8b3a3a;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 14px;
+      display: none;
+      text-align: left;
+    }
+
+    .error-msg.show {
+      display: block;
+      animation: fadeIn .2s ease;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: var(--deep);
+      color: var(--cream);
+      border: none;
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .5px;
+    }
+
+    .btn-primary:active {
+      transform: scale(.98);
+    }
+
+    /* ── QUIZ ── */
+    #screen-quiz {
+      justify-content: flex-start;
+      padding-top: 20px;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .progress-info {
+      font-size: 12px;
+      color: #9e7a6e;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .score-badge {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--rose);
+      background: rgba(201, 125, 110, 0.1);
+      padding: 5px 12px;
+      border-radius: 99px;
+    }
+
+    /* Timer */
+    .timer-wrap {
+      width: 100%;
+      margin-bottom: 16px;
+      position: relative;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-ring {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+
+    .timer-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .timer-track {
+      fill: none;
+      stroke: var(--blush);
+      stroke-width: 3;
+    }
+
+    .timer-fill {
+      fill: none;
+      stroke: var(--rose);
+      stroke-width: 3;
+      stroke-linecap: round;
+      transition: stroke-dashoffset .9s linear, stroke .3s;
+    }
+
+    .timer-number {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--deep);
+    }
+
+    .timer-bar-wrap {
+      flex: 1;
+      margin-left: 12px;
+      height: 6px;
+      background: var(--blush);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .timer-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--rose), var(--gold));
+      border-radius: 99px;
+      transition: width .9s linear, background .3s;
+    }
+
+    .timer-bar.urgent {
+      background: linear-gradient(90deg, #c96e6e, #e8a87c);
+    }
+
+    .question-card {
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 24px 22px 20px;
+      box-shadow: 0 4px 32px rgba(59, 42, 42, .08);
+      margin-bottom: 14px;
+      animation: slideIn .3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0)
+      }
+    }
+
+    .q-number {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .q-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      line-height: 1.35;
+      color: var(--deep);
+      font-weight: 400;
+    }
+
+    .options-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 14px 16px;
+      background: white;
+      border: 1.5px solid #e8d9d0;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--deep);
+      cursor: pointer;
+      text-align: left;
+      transition: all .18s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--rose);
+      background: var(--soft);
+    }
+
+    .option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--rose);
+      flex-shrink: 0;
+      transition: all .18s;
+    }
+
+    .option-btn:hover:not(:disabled) .option-letter {
+      background: var(--rose);
+      color: white;
+    }
+
+    .option-btn.correct {
+      border-color: var(--green);
+      background: rgba(122, 171, 138, .08);
+    }
+
+    .option-btn.correct .option-letter {
+      background: var(--green);
+      color: white;
+    }
+
+    .option-btn.wrong {
+      border-color: var(--red);
+      background: rgba(201, 110, 110, .06);
+      opacity: .7;
+    }
+
+    .option-btn.wrong .option-letter {
+      background: var(--red);
+      color: white;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    /* Photo reveal */
+    .photo-reveal {
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 14px;
+      display: none;
+      animation: fadeIn .4s ease;
+    }
+
+    .photo-reveal.show {
+      display: block;
+    }
+
+    .photo-reveal img {
+      width: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 16px;
+    }
+
+    .photo-caption {
+      font-size: 13px;
+      color: #9e7a6e;
+      text-align: center;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    .feedback-msg {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .feedback-msg.show {
+      display: block;
+      animation: fadeIn .2s ease;
+    }
+
+    .feedback-msg.correct-fb {
+      background: rgba(122, 171, 138, .12);
+      color: #2d6b45;
+      border: 1px solid rgba(122, 171, 138, .3);
+    }
+
+    .feedback-msg.wrong-fb {
+      background: rgba(201, 110, 110, .08);
+      color: #8b3a3a;
+      border: 1px solid rgba(201, 110, 110, .2);
+    }
+
+    .feedback-msg.timeout-fb {
+      background: rgba(201, 165, 110, .1);
+      color: #7a5a2a;
+      border: 1px solid rgba(201, 165, 110, .3);
+    }
+
+    .btn-next {
+      width: 100%;
+      padding: 15px;
+      background: var(--rose);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      display: none;
+      margin-top: 12px;
+    }
+
+    .btn-next.show {
+      display: block;
+      animation: fadeIn .3s ease .1s both;
+    }
+
+    .btn-next:active {
+      transform: scale(.98);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    /* ── RESULT ── */
+    #screen-result {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .result-emoji {
+      font-size: 56px;
+      margin-bottom: 16px;
+      animation: pop .5s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(0)
+      }
+
+      to {
+        transform: scale(1)
+      }
+    }
+
+    .result-player-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      color: var(--gold);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .result-score {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      font-weight: 700;
+      color: var(--deep);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .result-score span {
+      color: var(--rose);
+    }
+
+    .result-total-label {
+      font-size: 14px;
+      color: #9e7a6e;
+      margin-bottom: 20px;
+    }
+
+    .result-msg {
+      font-size: 15px;
+      line-height: 1.65;
+      color: #6b5050;
+      max-width: 300px;
+      margin: 0 auto 28px;
+      padding: 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(59, 42, 42, .06);
+      font-style: italic;
+    }
+
+    .hearts {
+      font-size: 24px;
+      letter-spacing: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <div class="rings">💍</div>
+    <div class="couple-name">Dani <span>&</span> Lucas</div>
+    <div class="date-label">25 de Abril · 2026</div>
+    <div class="divider"></div>
+    <p class="intro-desc">¿Cuánto sabés de nuestra historia? Respondé las preguntas antes de que se acabe el tiempo.</p>
+    <div class="name-input-wrap">
+      <label>Tu nombre</label>
+      <input type="text" id="player-name" placeholder="Escribí tu nombre..." maxlength="30" autocomplete="off"
+        onkeydown="if(event.key==='Enter') startQuiz()">
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+    <button class="btn-primary" onclick="startQuiz()">Comenzar Trivia ✨</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="top-bar">
+      <span class="progress-info" id="q-counter">Pregunta 1 de 12</span>
+      <span class="score-badge" id="score-counter">0 pts</span>
+    </div>
+
+    <div class="timer-wrap">
+      <div class="timer-ring">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <circle class="timer-track" cx="24" cy="24" r="20" />
+          <circle class="timer-fill" id="timer-circle" cx="24" cy="24" r="20" stroke-dasharray="125.66"
+            stroke-dashoffset="0" />
+        </svg>
+        <div class="timer-number" id="timer-number">15</div>
+      </div>
+      <div class="timer-bar-wrap">
+        <div class="timer-bar" id="timer-bar" style="width:100%"></div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-number" id="q-number">01</div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+
+    <div class="options-list" id="options-list"></div>
+    <div class="feedback-msg" id="feedback-msg"></div>
+
+    <!-- PHOTO REVEAL -->
+    <div class="photo-reveal" id="photo-reveal">
+      <img id="photo-img" src="" alt="Foto">
+      <div class="photo-caption" id="photo-caption"></div>
+    </div>
+
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Siguiente →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="confetti-container" id="confetti"
+      style="position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden;"></div>
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-player-name" id="result-player-name"></div>
+    <div class="result-score"><span id="final-score">0</span> / <span id="final-total">12</span></div>
+    <div class="result-total-label">respuestas correctas</div>
+    <div class="result-msg" id="result-msg"></div>
+    <div class="hearts">🌸 💍 🌸</div>
+  </div>
+
+  <script>
+    // ─────────────────────────────────────────────
+    // FOTOS: reemplazá cada "photo" con el link de
+    // Google Drive convertido así:
+    //   Original:  https://drive.google.com/file/d/XXXXXXXXXX/view
+    //   Convertido: https://drive.google.com/uc?id=XXXXXXXXXX
+    //
+    // Si no tenés foto para alguna pregunta, dejá photo: null
+    // ─────────────────────────────────────────────
+    const PLACEHOLDER = 'https://placehold.co/400x220/f5ede4/c97d6e?text=📷+Foto+aquí';
+
+    const questions = [
+      {
+        q: "¿En qué año se conocieron Dani y Lucas?",
+        options: ["2015", "2016", "2017"],
+        correct: 1, time: 15,
+        ok: "¡Correcto! Se conocieron en 2016 🥂",
+        fail: "Se conocieron en 2016, ¡a estudiar historia!",
+        photo: "https://i.imgur.com/3quZgS1.jpeg",
+        caption: "El comienzo de todo ✨"
+      },
+      {
+        q: "¿Cómo se conocieron?",
+        options: ["Por amigos en común", "Por Tinder", "Por Happn", "En la facultad"],
+        correct: 2, time: 20,
+        ok: "¡Sí! Happn los unió. El amor moderno 📱",
+        fail: "¡Fue por Happn! La app que conecta a personas que se cruzan.",
+        photo: "https://www.solteros.es/b6/image/upload/ds/upload/reviews/SPA/happn/happn-logo.jpg",
+        caption: "Happn hizo su magia 📱"
+      },
+      {
+        q: "¿Cuánto tiempo llevaban de novios cuando se mudaron juntos?",
+        options: ["11 meses", "7 meses", "1 año y medio"],
+        correct: 1, time: 20,
+        ok: "¡Exacto! 7 meses y ya compartían techo 🏠",
+        fail: "¡7 meses! Rápidos pero seguros.",
+        photo: "https://i.imgur.com/spuAhsg.jpeg",
+        caption: "Misiones 4554, Villa Ballester 🏠"
+      },
+      {
+        q: "¿Cuántas mudanzas hicieron juntos hasta hoy?",
+        options: ["3 mudanzas", "4 mudanzas", "5 mudanzas"],
+        correct: 1, time: 15,
+        ok: "¡Cuatro mudanzas! Expertos en embalar cajas 📦",
+        fail: "¡Fueron 4 mudanzas! Expertos en embalar 📦",
+        photo: "https://i.imgur.com/xhQh0na.jpeg",
+        caption: "Ballester, San Martin, J. L. Suarez... siempre moviendonos 😩"
+      },
+      {
+        q: "¿Cómo se llamaba su primera mascota juntos?",
+        options: ["Bruno", "Larry", "Mora"],
+        correct: 2, time: 15,
+        ok: "¡Mora! La primera integrante peluda de la familia 🐾",
+        fail: "¡Se llamaba Mora! Siempre en el corazón.",
+        photo: "https://i.imgur.com/Y3XXQW1.jpeg",
+        caption: "La inigualable Mora 🐾, siempre en el corazón"
+      },
+      {
+        q: "¿Cuál fue el primer viaje que hicieron juntos?",
+        options: ["Villa Gesell", "Disney", "Cataratas del Iguazú"],
+        correct: 2, time: 15,
+        ok: "¡Villa Gesell! El comienzo de muchas aventuras 🌊",
+        fail: "¡Fue Gesell! Escapadita acá nomás.",
+        photo: "https://i.imgur.com/MKcfFqF.gif",
+        caption: "Dani con pelo corto jugando a los jueguitos 🕹️"
+      },
+      {
+        q: "¿Cuál fue el primer concierto al que fueron juntos?",
+        options: ["Bon Jovi", "Ed Sheeran", "Aerosmith"],
+        correct: 2, time: 15,
+        ok: "¡Aerosmith! Dream On, Dani y Lucas 🎸",
+        fail: "¡Fue Aerosmith! Un show legendario.",
+        photo: "https://fmrockandpop.com/media/k2/items/cache/886992efab837a1d37d7925c028b5d6a_XL.webp?t=20240805_144145",
+        caption: "No nos sacamos fotos, esa noche era solo Rock & Roll 🤘"
+      },
+      {
+        q: "¿Cuál fue su primera cita después de conocerse?",
+        options: ["Teatro", "Cine", "Sala de escape", "Jobs Bar"],
+        correct: 2, time: 20,
+        ok: "¡Sala de escape! Ya desde el principio, trabajando en equipo. 🔐",
+        fail: "¡Sala de escape! No acertaste? Nosotros tampoco salimos.",
+        photo: "https://i.imgur.com/Po6M7F1.jpeg",
+        caption: "Escapegames - Que pasó Ayer? 🔐"
+      },
+      {
+        q: "¿Cómo se hubiese llamado Luchi si fuera varón?",
+        options: ["Luciano", "Martín", "Alan"],
+        correct: 2, time: 20,
+        ok: "¡Alan! Pero llegó Luchi y fue mejor 💕",
+        fail: "¡Alan! Aunque Luchi es perfecta como es.",
+        photo: "https://i.imgur.com/eH4CN8N.jpeg",
+        caption: "Nuestra Luchi 💕"
+      },
+      {
+        q: "¿Cómo se hubiese llamado Emi si fuera varón?",
+        options: ["Ivan", "Luciano", "Ander"],
+        correct: 2, time: 20,
+        ok: "¡Correcto! Ander hubiera sido el nombre 💫",
+        fail: "¡Ander! Pero llegó Emilia con ese nombre perfecto.",
+        photo: "https://i.imgur.com/C4uEhnb.jpeg",
+        caption: "Nuestra Emi 👼"
+      },
+      {
+        q: "¿Cuál es nuestra comida favorita?",
+        options: ["Pizza", "Pastas", "Sushi"],
+        correct: 2, time: 15,
+        ok: "¡Sushi! - che, ¿pedimos sushi? 🍣",
+        fail: "¡Sushi! Salmón, palta y amor.",
+        photo: "https://i.imgur.com/DTn9r8B.jpeg",
+        caption: "La comida del amor 🍣"
+      },
+      {
+        q: "¿Quién es mayor de los dos?",
+        options: ["Son de la misma edad", "Lucas", "Daniela"],
+        correct: 2, time: 10,
+        ok: "¡Dani es la mayor! Con toda la autoridad que eso implica 👑",
+        fail: "¡Dani es la mayor! Y lo lleva con mucha elegancia.",
+        photo: "https://i.imgur.com/D1T12Bq.jpeg",
+        caption: "Lucas le dice a Dani que es la mas vieja y siempre la hace enojar jaja"
+      }
+    ];
+
+    const resultMessages = [
+      { min: 0, max: 3, emoji: "😅", msg: "¡Necesitás ponerte al dia! Pero gracias por acompañarnos en este día tan especial." },
+      { min: 4, max: 6, emoji: "🙂", msg: "Tenés alguna idea, ¡pero hay más historia por descubrir! Vení a saludarnos y preguntanos más." },
+      { min: 7, max: 9, emoji: "😍", msg: "¡Muy bien! Claramente sos parte importante de su círculo. Los conocés de verdad." },
+      { min: 10, max: 11, emoji: "🏆", msg: "¡Impresionante! Casi perfecta. Sos prácticamente parte de la familia Dani & Lucas." },
+      { min: 12, max: 12, emoji: "👑", msg: "¡PERFECTO! ¡12/12! ¿Vivías con ellos en secreto? ¡Sos el/la fan número uno de esta pareja!" }
+    ];
+
+    // ── STATE ──
+    let currentQ = 0, score = 0, answered = false, playerName = '';
+    let timerInterval = null, timeLeft = 0, totalTime = 0;
+
+    // ── ANTI-CHEAT ──
+    const DEVICE_KEY = 'trivia_dl26_done';
+    const NAMES_KEY = 'trivia_dl26_names';
+    function devicePlayed() { return localStorage.getItem(DEVICE_KEY) === '1'; }
+    function markDeviceDone() { localStorage.setItem(DEVICE_KEY, '1'); }
+    function usedNames() { try { return JSON.parse(localStorage.getItem(NAMES_KEY) || '[]'); } catch { return []; } }
+    function addName(n) { const a = usedNames(); if (!a.includes(n.toLowerCase())) { a.push(n.toLowerCase()); localStorage.setItem(NAMES_KEY, JSON.stringify(a)); } }
+
+    // ── UI HELPERS ──
+    function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0, 0); }
+    function showError(m) { const e = document.getElementById('error-msg'); e.textContent = m; e.classList.add('show'); }
+    function hideError() { document.getElementById('error-msg').classList.remove('show'); }
+
+    // ── START ──
+    function startQuiz() {
+      hideError();
+      const raw = document.getElementById('player-name').value.trim();
+      if (!raw) { showError('✏️ Escribí tu nombre para empezar.'); return; }
+      if (devicePlayed()) { const n = usedNames(); showError(`⛔ Este celular ya jugó${n.length ? ' como "' + n[0] + '"' : ''}. ¡Una sola partida por dispositivo! 😄`); return; }
+      if (usedNames().includes(raw.toLowerCase())) { showError(`⛔ "${raw}" ya jugó. ¡Sin segundas chances! 😉`); return; }
+      playerName = raw; currentQ = 0; score = 0;
+      show('screen-quiz');
+      renderQuestion();
+    }
+
+    // ── TIMER ──
+    const CIRCUMFERENCE = 2 * Math.PI * 20; // r=20 → 125.66
+
+    function startTimer(seconds) {
+      clearInterval(timerInterval);
+      timeLeft = seconds; totalTime = seconds;
+      updateTimerUI(seconds, seconds);
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerUI(timeLeft, totalTime);
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timeOut();
+        }
+      }, 1000);
+    }
+
+    function updateTimerUI(left, total) {
+      const pct = left / total;
+      const offset = CIRCUMFERENCE * (1 - pct);
+      document.getElementById('timer-circle').style.strokeDashoffset = offset;
+      document.getElementById('timer-number').textContent = left;
+      document.getElementById('timer-bar').style.width = (pct * 100) + '%';
+      const urgent = left <= 5;
+      document.getElementById('timer-circle').style.stroke = urgent ? 'var(--red)' : 'var(--rose)';
+      document.getElementById('timer-bar').className = 'timer-bar' + (urgent ? ' urgent' : '');
+      document.getElementById('timer-number').style.color = urgent ? 'var(--red)' : 'var(--deep)';
+    }
+
+    function stopTimer() { clearInterval(timerInterval); }
+
+    function timeOut() {
+      answered = true;
+      const q = questions[currentQ];
+      const btns = document.querySelectorAll('.option-btn');
+      btns.forEach(b => b.disabled = true);
+      btns[q.correct].classList.add('correct');
+      showFeedback('⏰ ¡Se acabó el tiempo! La respuesta era: ' + q.options[q.correct], 'timeout');
+      showPhoto(q);
+      const next = document.getElementById('btn-next');
+      next.textContent = currentQ < questions.length - 1 ? 'Siguiente →' : 'Ver resultado 🎉';
+      next.classList.add('show');
+    }
+
+    // ── RENDER QUESTION ──
+    function renderQuestion() {
+      answered = false;
+      const q = questions[currentQ], total = questions.length;
+      document.getElementById('q-counter').textContent = `Pregunta ${currentQ + 1} de ${total}`;
+      document.getElementById('score-counter').textContent = `${score} pts`;
+      document.getElementById('q-number').textContent = String(currentQ + 1).padStart(2, '0');
+      document.getElementById('q-text').textContent = q.q;
+
+      const letters = ['A', 'B', 'C', 'D'];
+      const list = document.getElementById('options-list');
+      list.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
+        btn.onclick = () => selectAnswer(i);
+        list.appendChild(btn);
+      });
+
+      document.getElementById('feedback-msg').className = 'feedback-msg';
+      document.getElementById('photo-reveal').className = 'photo-reveal';
+      document.getElementById('btn-next').className = 'btn-next';
+
+      startTimer(q.time);
+    }
+
+    // ── SELECT ANSWER ──
+    function selectAnswer(idx) {
+      if (answered) return;
+      answered = true;
+      stopTimer();
+      const q = questions[currentQ];
+      const btns = document.querySelectorAll('.option-btn');
+      btns.forEach(b => b.disabled = true);
+
+      if (idx === q.correct) {
+        btns[idx].classList.add('correct');
+        score++;
+        showFeedback(q.ok, 'correct');
+      } else {
+        btns[idx].classList.add('wrong');
+        btns[q.correct].classList.add('correct');
+        showFeedback(q.fail, 'wrong');
+      }
+
+      document.getElementById('score-counter').textContent = `${score} pts`;
+      showPhoto(q);
+      const next = document.getElementById('btn-next');
+      next.textContent = currentQ < questions.length - 1 ? 'Siguiente →' : 'Ver resultado 🎉';
+      next.classList.add('show');
+    }
+
+    function showFeedback(msg, type) {
+      const fb = document.getElementById('feedback-msg');
+      fb.textContent = msg;
+      fb.className = `feedback-msg show ${type}-fb`;
+    }
+
+    function showPhoto(q) {
+      if (!q.photo) return;
+      const wrap = document.getElementById('photo-reveal');
+      const img = document.getElementById('photo-img');
+      const cap = document.getElementById('photo-caption');
+      img.src = q.photo;
+      cap.textContent = q.caption || '';
+      wrap.classList.add('show');
+    }
+
+    // ── NEXT ──
+    function nextQuestion() {
+      currentQ++;
+      if (currentQ >= questions.length) showResult();
+      else renderQuestion();
+    }
+
+    // ── RESULT ──
+    function showResult() {
+      markDeviceDone();
+      addName(playerName);
+      stopTimer();
+      show('screen-result');
+      document.getElementById('result-player-name').textContent = playerName.toUpperCase();
+      document.getElementById('final-score').textContent = score;
+      document.getElementById('final-total').textContent = questions.length;
+      const res = resultMessages.find(r => score >= r.min && score <= r.max);
+      document.getElementById('result-emoji').textContent = res.emoji;
+      document.getElementById('result-msg').textContent = res.msg;
+      if (score >= 10) launchConfetti();
+    }
+
+    // ── CONFETTI ──
+    function launchConfetti() {
+      const c = document.getElementById('confetti'); c.innerHTML = '';
+      const cols = ['#c97d6e', '#c9a96e', '#e8c5b0', '#7aab8a', '#3b2a2a', '#f5ede4'];
+      for (let i = 0; i < 60; i++) {
+        const p = document.createElement('div');
+        p.style.cssText = `position:absolute;width:8px;height:8px;left:${Math.random() * 100}%;top:-10px;background:${cols[Math.floor(Math.random() * cols.length)]};border-radius:${Math.random() > .5 ? '50%' : '2px'};opacity:0;animation:fall ${1.5 + Math.random() * 2}s ease-in ${Math.random() * 1.5}s forwards;`;
+        c.appendChild(p);
+      }
+    }
+    const st = document.createElement('style');
+    st.textContent = '@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}';
+    document.head.appendChild(st);
+  </script>
+</body>
+
+</html>
